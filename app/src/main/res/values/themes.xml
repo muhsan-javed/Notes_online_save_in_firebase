@@ -14,7 +14,7 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <style name="myTheme" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="myTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
 
         <!-- Customize your theme here. -->
     </style>
