@@ -5,9 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -16,77 +14,71 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.muhsantech.notesonlinesaveinfirebase.databinding.ActivityCreateNoteBinding;
+import com.muhsantech.notesonlinesaveinfirebase.R;
+import com.muhsantech.notesonlinesaveinfirebase.databinding.ActivityEditNotesBinding;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class CreateNote extends AppCompatActivity {
+public class EditNotesActivity extends AppCompatActivity {
 
-    ActivityCreateNoteBinding binding;
     FirebaseAuth firebaseAuth;
-    FirebaseUser firebaseUser;
     FirebaseFirestore firebaseFirestore;
+    FirebaseUser firebaseUser;
+    Intent data;
+    ActivityEditNotesBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityCreateNoteBinding.inflate(getLayoutInflater());
+        binding = ActivityEditNotesBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        //saveNoteFloatButton
-        // EditText = createTitleOfNote, createNotesContent
-        // Toolbar toolBarOfCreateNote
-
-        setSupportActionBar(binding.toolBarOfCreateNote);
+        setSupportActionBar(binding.toolBarOfNote);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        firebaseAuth = FirebaseAuth.getInstance();
+        data = getIntent();
         firebaseFirestore = FirebaseFirestore.getInstance();
-        firebaseUser = firebaseAuth.getInstance().getCurrentUser();
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
-        binding.saveNoteFloatButton.setOnClickListener(view -> {
+        String noteTitle = data.getStringExtra("title");
+        String noteContent = data.getStringExtra("content");
+        binding.UpdateTitleOfNote.setText(noteTitle);
+        binding.editNotesContent.setText(noteContent);
 
-            String title = binding.createTitleOfNote.getText().toString();
-            String content = binding.createNotesContent.getText().toString();
+        binding.updateNoteFloatButton.setOnClickListener(view -> {
+            Toast.makeText(this, "Note is Update", Toast.LENGTH_SHORT).show();
 
-            if (title.isEmpty() || content.isEmpty()){
-                Toast.makeText(this, "Both field are Require", Toast.LENGTH_SHORT).show();
-            }else {
-                binding.progressbarOfMainActivity.setVisibility(View.VISIBLE);
+            String newTitle = binding.UpdateTitleOfNote.getText().toString();
+            String newContent = binding.editNotesContent.getText().toString();
+
+            if (newTitle.isEmpty() || newContent.isEmpty()){
+                Toast.makeText(this, "SomeThing is empty", Toast.LENGTH_SHORT).show();
+            }
+            else {
                 DocumentReference documentReference = firebaseFirestore.collection("notes")
                         .document(firebaseUser.getUid())
                         .collection("myNotes")
-                        .document();
+                        .document(data.getStringExtra("noteId"));
 
-                Map<String, Object> note = new HashMap<>();
-                note.put("title", title);
-                note.put("content",content);
-
+                Map<String,Object> note = new HashMap<>();
+                note.put("title", newTitle);
+                note.put("content", newContent);
                 documentReference.set(note).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Toast.makeText(CreateNote.this, "Note Create Successfully", Toast.LENGTH_SHORT).show();
-//                        startActivity(new Intent(CreateNote.this, NotesActivity.class));
-//                        finish();
-//                        finishAffinity();
-
-                        Intent intent = new Intent(CreateNote.this, NotesActivity.class);
+                        Toast.makeText(EditNotesActivity.this, "Note is updated", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(EditNotesActivity.this, NotesActivity.class);
                         startActivity(intent);
                         finish();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(CreateNote.this, "Failed To Create Note", Toast.LENGTH_SHORT).show();
-                        binding.progressbarOfMainActivity.setVisibility(View.INVISIBLE);
+                        Toast.makeText(EditNotesActivity.this, "Failed To Update", Toast.LENGTH_SHORT).show();
                     }
                 });
-
             }
-
         });
-
-
 
 
     }
@@ -97,5 +89,4 @@ public class CreateNote extends AppCompatActivity {
             onBackPressed();
         }
         return super.onOptionsItemSelected(item);
-    }
-}
+    }}

@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -57,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
             }
             else {
                 // Login the user to firebase
-
+                binding.progressbarOfMainActivity.setVisibility(View.VISIBLE);
                 firebaseAuth.signInWithEmailAndPassword(mailLogin, passwordLogin).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -65,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
                             checkMailVerification();
                         }else {
                             Toast.makeText(MainActivity.this, "Account Doesn't Exist", Toast.LENGTH_SHORT).show();
+                            binding.progressbarOfMainActivity.setVisibility(View.INVISIBLE);
                         }
                     }
                 });
@@ -83,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(MainActivity.this, NotesActivity.class));
         }
         else {
+            binding.progressbarOfMainActivity.setVisibility(View.INVISIBLE);
             Toast.makeText(this, "Verify your mail first", Toast.LENGTH_SHORT).show();
             firebaseAuth.signOut();
         }
